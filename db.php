@@ -1,8 +1,20 @@
 <?php
 date_default_timezone_set("Asia/Taipei");
-$dsn="mysql:host=localhost;charset=utf8;dbname=material";
-$pdo=new PDO($dsn,'root','');
 session_start();
+
+class DB{
+
+    protected $dsn="mysql:host=localhost;charset=utf8;dbname=material";
+    protected $pdo;
+    protected $table;
+    // 在宣告成員
+
+    public function __construct($table)
+    {
+        $this->table=$table;
+        $this->pdo=new PDO($this->dsn,'root','');
+    }
+    
 
 
 function all($table = null, $where = '', $other = '')
@@ -145,6 +157,6 @@ function dd($array)
     echo "</pre>";
 }
 
-
+}
 
 ?>

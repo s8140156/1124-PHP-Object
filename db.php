@@ -12,6 +12,7 @@ class DB{
     public function __construct($table)
     {
         $this->table=$table;
+        // $this:用db這個class產生的物件 ->:存取屬性或方法(統稱為成員)
         $this->pdo=new PDO($this->dsn,'root','');
     }
     
@@ -39,6 +40,35 @@ function all($where = '', $other = '')
         $sql .= $other;
         //echo 'all=>'.$sql;
         $rows = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        return $rows;
+    } else {
+        echo "錯誤:沒有指定的資料表名稱";
+    }
+}
+
+function count($where = '', $other = '')
+{
+    // global $pdo;
+    $sql = "select count(*) from `$this->table` ";
+
+    if (isset($this->table) && !empty($this->table)) {
+
+        if (is_array($where)) {
+
+            if (!empty($where)) {
+                foreach ($where as $col => $value) {
+                    $tmp[] = "`$col`='$value'";
+                }
+                $sql .= " where " . join(" && ", $tmp);
+            }
+        } else {
+            $sql .= " $where";
+        }
+
+        $sql .= $other;
+        //echo 'all=>'.$sql;
+        $rows = $this->pdo->query($sql)->fetchColumn();
+        // 只是回傳筆數 所以不須所有資料紀錄
         return $rows;
     } else {
         echo "錯誤:沒有指定的資料表名稱";
@@ -85,48 +115,30 @@ function find($id)
     return $row;
 }
 
-function update($id, $cols)
-{
-    // global $pdo;
+// 將insert與update function合併簡化
+// 並將原先函式設定protected是讓外部不能存取 只能用save funtion丟陣列進來判斷
+function save($array){
+    if(isset($array['id'])){
+        $sql = "update `$this->table` set ";
 
-    $sql = "update `$this->table` set ";
-
-    if (!empty($cols)) {
-        foreach ($cols as $col => $value) {
-            $tmp[] = "`$col`='$value'";
+        if (!empty($cols)) {
+            foreach ($cols as $col => $value) {
+                $tmp[] = "`$col`='$value'";
+            }
+        } else {
+            echo "錯誤:缺少要編輯的欄位陣列";
         }
-    } else {
-        echo "錯誤:缺少要編輯的欄位陣列";
+        $sql .= join(",", $tmp);
+        $sql .= " where `id`='{$array['id']}'";
+    
+    }else{
+        $sql = "insert into `$this->table` ";
+        $cols = "(`" . join("`,`", array_keys($array)) . "`)";
+        $vals = "('" . join("','", $array) . "')";
+        
+        $sql = $sql . $cols . " values " . $vals;
+        
     }
-
-    $sql .= join(",", $tmp);
-    $tmp = [];
-    if (is_array($id)) {
-        foreach ($id as $col => $value) {
-            $tmp[] = "`$col`='$value'";
-        }
-        $sql .= " where " . join(" && ", $tmp);
-    } else if (is_numeric($id)) {
-        $sql .= " where `id`='$id'";
-    } else {
-        echo "錯誤:參數的資料型態比須是數字或陣列";
-    }
-    // echo $sql;
-    return $this->pdo->exec($sql);
-}
-
-function insert($values)
-{
-    // global $pdo;
-
-    $sql = "insert into `$this->table` ";
-    $cols = "(`" . join("`,`", array_keys($values)) . "`)";
-    $vals = "('" . join("','", $values) . "')";
-
-    $sql = $sql . $cols . " values " . $vals;
-
-    //echo $sql;
-
     return $this->pdo->exec($sql);
 }
 

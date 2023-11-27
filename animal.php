@@ -1,6 +1,7 @@
 <?php
 
 class Animal{
+	// 宣告一個Animal class(類別)
 
 
 }

@@ -3,10 +3,11 @@
 // 宣告class
 class Animal{
 	protected $name;
-	// 宣告屬性 變數, 
+	// 宣告protected屬性(封裝) 有一個變數$name
 
 	public function __construct($name){
 		$this->name=$name;
+		// $this是指這一整個物件, 這個function就是把$name指定給name
 	}
 
 	public function setName($name){
@@ -19,10 +20,19 @@ class Animal{
 
 }
 
+$animal=new Animal; //實體(例)化 instant
+// 建立一個名稱$animal, 為Animal類別的物件
+
+echo '顯示名稱：' .$animal->name;
+// 將物件的屬性name
+echo '顯示名稱：' .$animal->setName('小花');
+// 將物件的name屬性的值用setName方法 變更為"小花"
 
 // $animal=new Animal('阿明'); //實體(例)化 instant
+// 建立一個名稱$animal, 為Animal類別的物件
 
 // echo '顯示名稱:' .$animal->getName();
+// 將物件的getName
 // echo "<br>";
 // $animal->setName('小花');
 // echo '顯示名稱:' .$animal->getName();

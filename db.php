@@ -21,55 +21,37 @@ class DB
 
     function all($where = '', $other = '')
     {
-        // global $pdo;
         $sql = "select * from `$this->table` ";
+        $sql=$this->sql_all($sql,$where,$other);
+        return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
-        if (isset($this->table) && !empty($this->table)) {
-
-            if (is_array($where)) {
-
-                if (!empty($where)) {
-                    $tmp = $this->a2s($where);
-                    $sql .= " where " . join(" && ", $tmp);
-                }
-            } else {
-                $sql .= " $where";
-            }
-
-            $sql .= $other;
-            //echo 'all=>'.$sql;
-            $rows = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-            return $rows;
-        } else {
-            echo "錯誤:沒有指定的資料表名稱";
-        }
     }
 
     function count($where = '', $other = '')
     {
-        // global $pdo;
         $sql = "select count(*) from `$this->table` ";
+        $sql=$this->sql_all($sql,$where,$other);
+        return $this->pdo->query($sql)->fetchColumn();
+    }
 
-        if (isset($this->table) && !empty($this->table)) {
-
-            if (is_array($where)) {
-
-                if (!empty($where)) {
-                    $tmp = $this->a2s($where);
-                    $sql .= " where " . join(" && ", $tmp);
-                }
-            } else {
-                $sql .= " $where";
-            }
-
-            $sql .= $other;
-            //echo 'all=>'.$sql;
-            $rows = $this->pdo->query($sql)->fetchColumn();
-            // 只是回傳筆數 所以不須所有資料紀錄
-            return $rows;
-        } else {
-            echo "錯誤:沒有指定的資料表名稱";
-        }
+    private function math($math,$col,$array='',$other = '')
+    // 由於sum需要"欄位", 所以加入$col 參數(變數)
+    {
+        $sql = "select $math(`$col`) from `$this->table` ";
+        $sql=$this->sql_all($sql,$array,$other);
+        return $this->pdo->query($sql)->fetchColumn();
+    }
+    function sum($col='',$where='',$other = '')
+    {
+        return $this->math('sum',$col,$where,$other);
+    }
+    function max($col='',$where='',$other = '')
+    {
+        return $this->math('max',$col,$where,$other);
+    }
+    function min($col='',$where='',$other = '')
+    {
+        return $this->math('min',$col,$where,$other);
     }
 
     function total($id)
@@ -166,8 +148,29 @@ class DB
         }
         return $tmp;
         // 注意 最後是存成一個$tmp來存取提出的陣列,所以return $tmp
+    }
+    private function sql_all($sql,$array,$other){
+        if (isset($this->table) && !empty($this->table)) {
 
+            if (is_array($array)) {
 
+                if (!empty($array)) {
+                    $tmp = $this->a2s($array);
+                    $sql .= " where " . join(" && ", $tmp);
+                }
+            } else {
+                $sql .= " $array";
+            }
+
+            $sql .= $other;
+            //echo 'all=>'.$sql;
+            // $rows = $this->pdo->query($sql)->fetchColumn();
+            // 改用return回傳
+            // 只是回傳筆數 所以不須所有資料紀錄
+            return $sql;
+        } else {
+            echo "錯誤:沒有指定的資料表名稱";
+        }
     }
 }
 
@@ -186,8 +189,25 @@ function dd($array)
 // $rows=$student->total('3');
 // dd($rows);
 
-$student = new DB('dept');
-$rows = $student->find('3');
+// $student = new DB('dept');
+// $rows = $student->find('3');
+// dd($rows);
+
+echo"<hr>";
+
+
+$student=new DB('students');
+$rows=$student->count();
 dd($rows);
+echo "<hr>";
+$Score=new DB('student_scores');
+$sum=$Score->sum('score');
+dd($sum);
+echo "<hr>";
+$sum=$Score->sum('score'," where `school_num` <= '911020'");
+dd($sum);
+echo "<hr>";
+$sum=$Score->max('score');
+dd($sum);
 
 ?>

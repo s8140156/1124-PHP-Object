@@ -24,6 +24,7 @@ class DB
         $sql = "select * from `$this->table` ";
         $sql=$this->sql_all($sql,$where,$other);
         return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        // FETCH_ASSOC: 只取key的資訊
 
     }
 
@@ -32,6 +33,7 @@ class DB
         $sql = "select count(*) from `$this->table` ";
         $sql=$this->sql_all($sql,$where,$other);
         return $this->pdo->query($sql)->fetchColumn();
+        //fetchColumn()取得指定欄位的資料
     }
 
     private function math($math,$col,$array='',$other = '')
@@ -43,6 +45,9 @@ class DB
     }
     function sum($col='',$where='',$other = '')
     {
+        // $sql = "select sum(`$col`) from `$this->table` ";
+        // $sql=$this->sql_all($sql,$where,$other);
+        // return $this->pdo->query($sql)->fetchColumn();
         return $this->math('sum',$col,$where,$other);
     }
     function max($col='',$where='',$other = '')
@@ -120,6 +125,7 @@ class DB
     {
         // global $pdo;
         $sql = "delete from `$this->table` where ";
+        // 只有del()把where寫在sql語法上
 
         if (is_array($id)) {
             $tmp = $this->a2s($id);
@@ -135,8 +141,10 @@ class DB
     }
 
     function q($sql)
+    // 當使用完整sql語法時使用q()
     {
         return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        // 僅限查詢相關語法(update/del/insert不適用)
     }
 
     private function a2s($array)
@@ -145,6 +153,7 @@ class DB
         // array to sql(命名)
         foreach ($array as $col => $value) {
             $tmp[] = "`$col`='$value'";
+            // 把它存成與sql指令一樣的格式( SQL 語句中的 SET 子句，以便在更新(update)資料庫中的記錄時使用)
         }
         return $tmp;
         // 注意 最後是存成一個$tmp來存取提出的陣列,所以return $tmp
@@ -157,6 +166,8 @@ class DB
                 if (!empty($array)) {
                     $tmp = $this->a2s($array);
                     $sql .= " where " . join(" && ", $tmp);
+                    // $sql = $sql." where " . join(" && ", $tmp);
+                    // x=x+5, 也等於x+=5
                 }
             } else {
                 $sql .= " $array";

@@ -9,7 +9,8 @@ class DB
     protected $pdo;
     protected $table;
     // 在宣告成員 不能有運算式or new甚麼...
-
+    
+    // construct()類別實例化時自動被呼叫
     public function __construct($table)
     {
         $this->table = $table;

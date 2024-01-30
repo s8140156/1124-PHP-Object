@@ -114,10 +114,11 @@ class DB
             $sql .= " where `id`='{$array['id']}'";
         } else {
             $sql = "insert into `$this->table` ";
-            $cols = "(`" . join("`,`", array_keys($array)) . "`)";
-            $vals = "('" . join("','", $array) . "')";
-
+            $cols = "(`" . join("`,`", array_keys($array)) . "`)"; // array_keys()無視value 取key值(col)
+            $vals = "('" . join("','", $array) . "')"; // .join() 這個函數會取$array中key、value的value出來組合成字串, join無視key 取value(val)
+           
             $sql = $sql . $cols . " values " . $vals;
+            //透過這樣組合來完成sql insert語法 insert into $table(`col1`,`col2`...) values(`val1`,`val2`...)
         }
         return $this->pdo->exec($sql);
     }
